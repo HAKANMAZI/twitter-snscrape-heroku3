@@ -3,11 +3,10 @@
 # pip install pandas
 
 from flask import Flask, render_template, request, url_for, redirect, send_file, session
+from requests import post
 import snscrape.modules.twitter as twitter
 import pandas as pd
 import os 
-
-posts = []
 
 def delete_csv():
     dir_name = os.getcwd()
@@ -24,6 +23,7 @@ class most_liked_tweets():
     def __init__(self) -> None:
         self.yesterday = datetime.strftime(datetime.now() - timedelta(1), '%Y-%m-%d')
         self.tomorrow = datetime.strftime(datetime.now() + timedelta(1), '%Y-%m-%d')
+        self.posts = []
 
     def post_times(self):
         times = {
@@ -36,10 +36,10 @@ class most_liked_tweets():
 
     def trending_tweets_url(self, keyword, like_count=50, sincetime="", untiltime=""):
         counter = 0
-        posts = []
+        self.posts = []
         for i, tweet in enumerate(twitter.TwitterSearchScraper(keyword + ' since:'+sincetime+' until:'+untiltime).get_items()):
             if tweet.likeCount > like_count:
-                if counter == 1: break
+                if counter == 3: break
                 print(self.yesterday)
                 print(self.tomorrow)
                 print(tweet.url)
@@ -50,9 +50,10 @@ class most_liked_tweets():
                 'date_posted': tweet.date,
                 'url': tweet.url
                 }
-                posts.append(tweet)
+                self.posts.append(tweet)
                 counter +=1
-        return posts
+        return self.posts
+        
 
 
 cls=most_liked_tweets()
@@ -80,6 +81,7 @@ def register():
 @app.route("/trending_tweets_url", methods=['GET','POST'])
 def trending_tweets_url():
     delete_csv()
+    posts = []
     if request.method == 'POST':
         session['keyword'] = request.form.get('keyword')
         session['like_count'] = request.form.get('like_count')
@@ -89,7 +91,8 @@ def trending_tweets_url():
         if session['keyword']:
             posts = cls.trending_tweets_url(session['keyword'], int(session['like_count']), session['sincetime'], session['untiltime'] )
 
-    print(post_times)    
+    print(post_times) 
+    print(posts)   
     return render_template('trending_tweets_url.html', post_times=post_times, posts = posts)
     
 
