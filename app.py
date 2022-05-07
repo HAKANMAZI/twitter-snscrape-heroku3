@@ -36,9 +36,10 @@ class most_liked_tweets():
 
     def trending_tweets_url(self, keyword, like_count=50, sincetime="", untiltime=""):
         counter = 0
+        posts = []
         for i, tweet in enumerate(twitter.TwitterSearchScraper(keyword + ' since:'+sincetime+' until:'+untiltime).get_items()):
             if tweet.likeCount > like_count:
-                if counter == 5: break
+                if counter == 1: break
                 print(self.yesterday)
                 print(self.tomorrow)
                 print(tweet.url)
@@ -51,6 +52,7 @@ class most_liked_tweets():
                 }
                 posts.append(tweet)
                 counter +=1
+        return posts
 
 
 cls=most_liked_tweets()
@@ -75,54 +77,6 @@ def register():
 
 
 
-@app.route("/home", methods=['GET','POST'])
-def home():
-    delete_csv()
-    if request.method == 'POST':
-        session['username'] = request.form.get('username')
-        session['keyword'] = request.form.get('keyword')
-        session['sincetime'] = request.form.get('sincetime')
-        session['untiltime'] = request.form.get('untiltime')
-        session['retweetcount'] = request.form.get('retweetcount')
-
-        session['username3'] = request.form.get('username3')
-        session['retweetcount3'] = request.form.get('retweetcount3')
-
-        session['keyword4'] = request.form.get('keyword4')
-        session['retweetcount4'] = request.form.get('retweetcount4')
-
-        
-        if request.form['btn'] == 'Process1':
-            if session['username']:
-                print("Process1")
-                userTweets_CSV(session['username'], session['sincetime'], session['untiltime'])
-                return send_file(os.path.abspath(session['username']+'.csv'), as_attachment=True)
-  
-        if request.form['btn'] == 'Process2':
-            if session['keyword']:
-                print("Process2")
-                keyword_CSV(session['keyword'], session['sincetime'], session['untiltime'])
-                return send_file(os.path.abspath(session['keyword']+'.csv'), as_attachment=True) 
-
-        if request.form['btn'] == 'Process3':
-            if session['username3']:
-                print("Process3")
-                retweetcount_CSV(session['username3'],  int(session['retweetcount3']), session['sincetime'], session['untiltime'])
-                return send_file(os.path.abspath(session['username3']+'.csv'), as_attachment=True)
-
-
-        if request.form['btn'] == 'Process4':   
-            if session['keyword4']:
-                print("Process4")
-                keywordretweet_CSV(session['keyword4'],  int(session['retweetcount4']), session['sincetime'], session['untiltime'])
-                return send_file(os.path.abspath(session['keyword4']+'.csv'), as_attachment=True)
-
-
-    return render_template("home.html")
-
-
-
-
 @app.route("/trending_tweets_url", methods=['GET','POST'])
 def trending_tweets_url():
     delete_csv()
@@ -133,7 +87,7 @@ def trending_tweets_url():
         session['untiltime'] = request.form.get('untiltime')
 
         if session['keyword']:
-            cls.trending_tweets_url(session['keyword'], int(session['like_count']), session['sincetime'], session['untiltime'] )
+            posts = cls.trending_tweets_url(session['keyword'], int(session['like_count']), session['sincetime'], session['untiltime'] )
 
     print(post_times)    
     return render_template('trending_tweets_url.html', post_times=post_times, posts = posts)

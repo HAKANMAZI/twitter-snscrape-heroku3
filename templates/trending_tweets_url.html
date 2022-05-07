@@ -18,14 +18,16 @@
                 <label>Tweet Until</label>  <input type="date" placeholder={{ post.tomorrow }} value={{ post.tomorrow }}  name= "untiltime">   <br><br>
             {% endfor %}
 
+            <input type="submit" value="Find Tweets">
+            {{ form.submit()}}
+        </form>
+
             {% for post in posts %}
             <label>Username   : <a> {{ post.username }} <a/>  </label> <br>
             <label>Content    : <a> {{ post.content }} <a/>   </label> <br> 
             <label>Date_posted: <a>{{ post.date_posted }}<a/> </label> <br>
             <label>Tweet Url  : <a href= {{ post.url }} > {{ post.url }} <a/>       </label> <br><br><br>
             {% endfor %}
-
-            <input type="submit" value="Find Tweets">
 
     </body>
 
